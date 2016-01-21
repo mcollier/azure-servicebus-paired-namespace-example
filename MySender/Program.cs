@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -18,15 +15,15 @@ namespace MySender
         //private const string primaryQueueSharedAccessKey = "blah";
 
         // This is the good key.
-        //private const string primaryQueueSharedAccessKey = "iOqJY7JnqzKzeEJ9sYh7v+ZWJE4IgOnyORXqNaqRDW4=";
-        private const string primaryQueueSharedAccessKey = "HNdXanqLkWNLKha46KBpdg6CU4429D8fs6VPU9ImjaQ=";
+        private const string primaryQueueSharedAccessKey = "iOqJY7JnqzKzeEJ9sYh7v+ZWJE4IgOnyORXqNaqRDW4=";
+        //private const string primaryQueueSharedAccessKey = "HNdXanqLkWNLKha46KBpdg6CU4429D8fs6VPU9ImjaQ=";
 
         
 
         private const string secondaryQueueSharedAccessKeyName = "RootManageSharedAccessKey";
 
-        //private const string secondaryQueueSharedAccessKey = "p2UEGMOsxeKUPxzLh7xhhFGCqHcIi/YKSang7jZPnqk=";
-        private const string secondaryQueueSharedAccessKey = "BS4BBdCstSpQC4CCJj2SQxYpICJI9Y0phwbtERbzt24=";
+        private const string secondaryQueueSharedAccessKey = "p2UEGMOsxeKUPxzLh7xhhFGCqHcIi/YKSang7jZPnqk=";
+        //private const string secondaryQueueSharedAccessKey = "BS4BBdCstSpQC4CCJj2SQxYpICJI9Y0phwbtERbzt24=";
 
         private static Uri primaryServiceBusAddressUri;
         private static TokenProvider primaryTokenProvider;
@@ -45,11 +42,11 @@ namespace MySender
             
             ConfigureServiceBusNamespace();
 
-            CreatePrimaryQueue().Wait();
+            //CreatePrimaryQueue().Wait();
 
             for (int i = 0; i < 50; i++)
             {
-                SendMessage(string.Format("{0} - Hello Mike!", i)).Wait();
+                SendMessageAsync(string.Format("{0} - Hello Mike!", i)).Wait();
             }
 
             Console.WriteLine("All done - press any key to exit.");
@@ -59,10 +56,10 @@ namespace MySender
 
         static void ConfigureServiceBusNamespace()
         {
-            primaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", "b-collier", string.Empty);
+            primaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", "collier", string.Empty);
             primaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(primaryQueueSharedAccessKeyName, primaryQueueSharedAccessKey);
 
-            secondaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", "b-collier-secondary", string.Empty);
+            secondaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", "collier-secondary", string.Empty);
             secondaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(secondaryQueueSharedAccessKeyName, secondaryQueueSharedAccessKey);
 
             primaryNamespaceManager = new NamespaceManager(primaryServiceBusAddressUri, primaryTokenProvider);
@@ -93,7 +90,7 @@ namespace MySender
             }
         }
 
-        static async Task SendMessage(string msg)
+        static async Task SendMessageAsync(string msg)
         {
             QueueClient queueClient = primaryMessagingFactory.CreateQueueClient(queueName);
 
@@ -102,7 +99,7 @@ namespace MySender
             await queueClient.SendAsync(bm);
         }
 
-        static void SendMessage2(string msg)
+        static void SendMessage(string msg)
         {
             QueueClient queueClient = primaryMessagingFactory.CreateQueueClient(queueName);
 
