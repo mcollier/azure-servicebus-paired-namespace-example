@@ -1,17 +1,66 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using System;
+using System.Configuration;
+using System.Threading;
+using Microsoft.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
 
-namespace LogReceiverSyphon
+namespace LogReceiverSyphonConsole
 {
-    // To learn more about Microsoft Azure WebJobs SDK, please see http://go.microsoft.com/fwlink/?LinkID=320976
     class Program
     {
-        // Please set the following connection strings in app.config for this WebJob to run:
-        // AzureWebJobsDashboard and AzureWebJobsStorage
-        static void Main()
+        private static NamespaceManager primaryNamespaceManager;
+        private static NamespaceManager secondaryNamespaceManager;
+
+        private static MessagingFactory primaryMessagingFactory;
+        private static MessagingFactory secondaryMessagingFactory;
+
+        static void Main(string[] args)
         {
-            var host = new JobHost();
-            // The following code ensures that the WebJob will be running continuously
-            host.RunAndBlock();
+            string primaryAccessKeyName = ConfigurationManager.AppSettings["primarySBKeyName"];
+            string primaryAccessKey = ConfigurationManager.AppSettings["primarySBKey"];
+            string primaryNamespaceName = ConfigurationManager.AppSettings["primarySBNamespaceName"];
+
+            string secondaryAccessKeyName = ConfigurationManager.AppSettings["secondarySBKeyName"];
+            string secondaryAccessKey = ConfigurationManager.AppSettings["secondarySBKey"];
+            string secondaryNamespaceName = ConfigurationManager.AppSettings["secondarySBNamespaceName"];
+
+            Uri primaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", primaryNamespaceName, string.Empty);
+            TokenProvider primaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(primaryAccessKeyName, primaryAccessKey);
+
+            Uri secondaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", secondaryNamespaceName, string.Empty);
+            TokenProvider secondaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(secondaryAccessKeyName, secondaryAccessKey);
+
+            primaryNamespaceManager = new NamespaceManager(primaryServiceBusAddressUri, primaryTokenProvider);
+            secondaryNamespaceManager = new NamespaceManager(secondaryServiceBusAddressUri, secondaryTokenProvider);
+
+            primaryMessagingFactory = MessagingFactory.Create(primaryServiceBusAddressUri,
+                new MessagingFactorySettings { TokenProvider = primaryTokenProvider });
+
+            secondaryMessagingFactory = MessagingFactory.Create(secondaryServiceBusAddressUri,
+                new MessagingFactorySettings { TokenProvider = secondaryTokenProvider });
+
+            try
+            {
+                SendAvailabilityPairedNamespaceOptions sendAvailabilityOptions =
+                    new SendAvailabilityPairedNamespaceOptions(secondaryNamespaceManager, secondaryMessagingFactory,
+                    backlogQueueCount: 10,
+                    failoverInterval: TimeSpan.Zero,
+                    enableSyphon: true);
+
+
+                primaryMessagingFactory.PairNamespaceAsync(sendAvailabilityOptions).Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            while (true)
+            {
+                Console.WriteLine();
+
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+            }
         }
     }
 }

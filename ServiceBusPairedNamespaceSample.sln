@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJobHost", "WebJobHost\We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogReceiver", "LogReceiver\LogReceiver.csproj", "{BA9EBE40-099F-40C5-8955-1BFD6A1598F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogReceiverSyphon", "LogReceiverSyphonConsole\LogReceiverSyphon.csproj", "{B57FE73F-1910-496F-A541-952370E3D81C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogReceiverSyphon", "LogReceiverSyphon\LogReceiverSyphon.csproj", "{B57FE73F-1910-496F-A541-952370E3D81C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
