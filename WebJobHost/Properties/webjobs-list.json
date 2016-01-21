@@ -4,8 +4,9 @@
     {
       "filePath": "../LogReceiver/LogReceiver.csproj"
     },
+    
     {
-      "filePath": "../LogReceiverSyphonConsole/LogReceiverSyphonConsole.csproj"
+      "filePath": "../LogReceiverSyphonConsole/LogReceiverSyphon.csproj"
     }
   ]
 }

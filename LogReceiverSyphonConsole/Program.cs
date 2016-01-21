@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Threading;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -7,25 +8,6 @@ namespace LogReceiverSyphonConsole
 {
     class Program
     {
-        private const string queueName = "logs";
-
-        private const string primaryQueueSharedAccessKeyName = "RootManageSharedAccessKey";
-
-        // This is the bad key
-        //private const string primaryQueueSharedAccessKey = "blah";
-
-        // This is the good key.
-        private const string primaryQueueSharedAccessKey = "iOqJY7JnqzKzeEJ9sYh7v+ZWJE4IgOnyORXqNaqRDW4=";
-
-        private const string secondaryQueueSharedAccessKeyName = "RootManageSharedAccessKey";
-        private const string secondaryQueueSharedAccessKey = "p2UEGMOsxeKUPxzLh7xhhFGCqHcIi/YKSang7jZPnqk=";
-
-        private static Uri primaryServiceBusAddressUri;
-        private static TokenProvider primaryTokenProvider;
-
-        private static Uri secondaryServiceBusAddressUri;
-        private static TokenProvider secondaryTokenProvider;
-
         private static NamespaceManager primaryNamespaceManager;
         private static NamespaceManager secondaryNamespaceManager;
 
@@ -34,11 +16,19 @@ namespace LogReceiverSyphonConsole
 
         static void Main(string[] args)
         {
-            primaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", "collier", string.Empty);
-            primaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(primaryQueueSharedAccessKeyName, primaryQueueSharedAccessKey);
+            string primaryAccessKeyName = ConfigurationManager.AppSettings["primarySBKeyName"];
+            string primaryAccessKey = ConfigurationManager.AppSettings["primarySBKey"];
+            string primaryNamespaceName = ConfigurationManager.AppSettings["primarySBNamespaceName"];
 
-            secondaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", "collier-secondary", string.Empty);
-            secondaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(secondaryQueueSharedAccessKeyName, secondaryQueueSharedAccessKey);
+            string secondaryAccessKeyName = ConfigurationManager.AppSettings["secondarySBKeyName"];
+            string secondaryAccessKey = ConfigurationManager.AppSettings["secondarySBKey"];
+            string secondaryNamespaceName = ConfigurationManager.AppSettings["secondarySBNamespaceName"];
+
+            Uri primaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", primaryNamespaceName, string.Empty);
+            TokenProvider primaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(primaryAccessKeyName, primaryAccessKey);
+
+            Uri secondaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", secondaryNamespaceName, string.Empty);
+            TokenProvider secondaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(secondaryAccessKeyName, secondaryAccessKey);
 
             primaryNamespaceManager = new NamespaceManager(primaryServiceBusAddressUri, primaryTokenProvider);
             secondaryNamespaceManager = new NamespaceManager(secondaryServiceBusAddressUri, secondaryTokenProvider);

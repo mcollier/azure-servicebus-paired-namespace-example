@@ -1,4 +1,6 @@
 ﻿using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
 
 namespace LogReceiver
 {
@@ -10,7 +12,14 @@ namespace LogReceiver
         static void Main()
         {
             JobHostConfiguration config = new JobHostConfiguration();
-            config.UseServiceBus();
+
+            ServiceBusConfiguration sbConfiguration = new ServiceBusConfiguration
+            {
+                PrefetchCount = 100,
+                MessageOptions = new OnMessageOptions { MaxConcurrentCalls = 50 }
+            };
+
+            config.UseServiceBus(sbConfiguration);
 
             var host = new JobHost(config);
             // The following code ensures that the WebJob will be running continuously
