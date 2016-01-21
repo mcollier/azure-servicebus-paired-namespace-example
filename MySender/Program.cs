@@ -22,7 +22,7 @@ namespace MySender
 
             //CreatePrimaryQueue().Wait();
 
-            for (int i = 0; i < 250; i++)
+            for (int i = 0; i < 50; i++)
             {
                 SendMessage(string.Format("{0} - Hello Mike!", i));
             }
