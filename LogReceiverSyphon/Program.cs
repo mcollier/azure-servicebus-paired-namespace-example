@@ -14,7 +14,7 @@ namespace LogReceiverSyphonConsole
         private static MessagingFactory primaryMessagingFactory;
         private static MessagingFactory secondaryMessagingFactory;
 
-        static void Main(string[] args)
+        static void Main()
         {
             string primaryAccessKeyName = ConfigurationManager.AppSettings["primarySBKeyName"];
             string primaryAccessKey = ConfigurationManager.AppSettings["primarySBKey"];
@@ -25,10 +25,12 @@ namespace LogReceiverSyphonConsole
             string secondaryNamespaceName = ConfigurationManager.AppSettings["secondarySBNamespaceName"];
 
             Uri primaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", primaryNamespaceName, string.Empty);
-            TokenProvider primaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(primaryAccessKeyName, primaryAccessKey);
+            TokenProvider primaryTokenProvider =
+                TokenProvider.CreateSharedAccessSignatureTokenProvider(primaryAccessKeyName, primaryAccessKey);
 
             Uri secondaryServiceBusAddressUri = ServiceBusEnvironment.CreateServiceUri("sb", secondaryNamespaceName, string.Empty);
-            TokenProvider secondaryTokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider(secondaryAccessKeyName, secondaryAccessKey);
+            TokenProvider secondaryTokenProvider =
+                TokenProvider.CreateSharedAccessSignatureTokenProvider(secondaryAccessKeyName, secondaryAccessKey);
 
             primaryNamespaceManager = new NamespaceManager(primaryServiceBusAddressUri, primaryTokenProvider);
             secondaryNamespaceManager = new NamespaceManager(secondaryServiceBusAddressUri, secondaryTokenProvider);
@@ -39,27 +41,20 @@ namespace LogReceiverSyphonConsole
             secondaryMessagingFactory = MessagingFactory.Create(secondaryServiceBusAddressUri,
                 new MessagingFactorySettings { TokenProvider = secondaryTokenProvider });
 
-            try
-            {
-                SendAvailabilityPairedNamespaceOptions sendAvailabilityOptions =
-                    new SendAvailabilityPairedNamespaceOptions(secondaryNamespaceManager, secondaryMessagingFactory,
+
+            SendAvailabilityPairedNamespaceOptions sendAvailabilityOptions =
+                new SendAvailabilityPairedNamespaceOptions(secondaryNamespaceManager, secondaryMessagingFactory,
                     backlogQueueCount: 10,
                     failoverInterval: TimeSpan.Zero,
                     enableSyphon: true);
 
 
-                primaryMessagingFactory.PairNamespaceAsync(sendAvailabilityOptions).Wait();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            primaryMessagingFactory.PairNamespaceAsync(sendAvailabilityOptions).Wait();
 
             while (true)
             {
-                Console.WriteLine();
-
-                Thread.Sleep(TimeSpan.FromSeconds(2));
+                Console.WriteLine("Working . . . ");
+                Thread.Sleep(TimeSpan.FromMilliseconds(100));
             }
         }
     }

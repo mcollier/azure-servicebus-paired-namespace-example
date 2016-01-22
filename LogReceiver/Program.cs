@@ -15,13 +15,14 @@ namespace LogReceiver
 
             ServiceBusConfiguration sbConfiguration = new ServiceBusConfiguration
             {
-                PrefetchCount = 100,
-                MessageOptions = new OnMessageOptions { MaxConcurrentCalls = 50 }
+                PrefetchCount = 100
+                //, MessageOptions = new OnMessageOptions { MaxConcurrentCalls = 50 }
             };
 
             config.UseServiceBus(sbConfiguration);
 
             var host = new JobHost(config);
+
             // The following code ensures that the WebJob will be running continuously
             host.RunAndBlock();
         }

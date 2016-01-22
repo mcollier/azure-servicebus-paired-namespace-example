@@ -67,6 +67,11 @@ namespace MySender
                 enableSyphon: false);
 
             primaryMessagingFactory.PairNamespaceAsync(sendAvailabilityOptions).Wait();
+
+            if (sendAvailabilityOptions.BacklogQueueCount < 1)
+            {
+                Console.WriteLine("ERROR: No backlog queues created");
+            }
         }
 
         static async Task CreatePrimaryQueue()
